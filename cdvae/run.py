@@ -64,11 +64,6 @@ def run(cfg: DictConfig) -> None:
 
     :param cfg: run configuration, defined by Hydra in /conf
     """
-
-    if os.getenv("WANDB_DISABLED", "").lower() in {"1", "true", "yes"}:
-        if "wandb" in cfg.logging:
-            hydra.utils.log.info("WANDB_DISABLED detected → skipping WandbLogger")
-            del cfg.logging["wandb"]
     
     if cfg.train.deterministic:
         seed_everything(cfg.train.random_seed)
