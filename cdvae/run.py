@@ -111,20 +111,20 @@ def run(cfg: DictConfig) -> None:
     callbacks: List[Callback] = build_callbacks(cfg=cfg)
 
     # Logger instantiation/configuration
-    wandb_logger = None
-    if "wandb" in cfg.logging:
-        hydra.utils.log.info("Instantiating <WandbLogger>")
-        wandb_config = cfg.logging.wandb
-        wandb_logger = WandbLogger(
-            **wandb_config,
-            tags=cfg.core.tags,
-        )
-        hydra.utils.log.info("W&B is now watching <{cfg.logging.wandb_watch.log}>!")
-        wandb_logger.watch(
-            model,
-            log=cfg.logging.wandb_watch.log,
-            log_freq=cfg.logging.wandb_watch.log_freq,
-        )
+    # wandb_logger = None
+    # if "wandb" in cfg.logging:
+    #     hydra.utils.log.info("Instantiating <WandbLogger>")
+    #     wandb_config = cfg.logging.wandb
+    #     wandb_logger = WandbLogger(
+    #         **wandb_config,
+    #         tags=cfg.core.tags,
+    #     )
+    #     hydra.utils.log.info("W&B is now watching <{cfg.logging.wandb_watch.log}>!")
+    #     wandb_logger.watch(
+    #         model,
+    #         log=cfg.logging.wandb_watch.log,
+    #         log_freq=cfg.logging.wandb_watch.log_freq,
+    #     )
 
     # Store the YaML config separately into the wandb dir
     yaml_conf: str = OmegaConf.to_yaml(cfg=cfg)
@@ -142,7 +142,7 @@ def run(cfg: DictConfig) -> None:
     hydra.utils.log.info("Instantiating the Trainer")
     trainer = pl.Trainer(
         default_root_dir=hydra_dir,
-        logger=wandb_logger,
+        # logger=wandb_logger,
         callbacks=callbacks,
         deterministic=cfg.train.deterministic,
         check_val_every_n_epoch=cfg.logging.val_check_interval,
@@ -159,8 +159,8 @@ def run(cfg: DictConfig) -> None:
     #trainer.test(datamodule=datamodule)
 
     # Logger closing to release resources/avoid multi-run conflicts
-    if wandb_logger is not None:
-        wandb_logger.experiment.finish()
+    # if wandb_logger is not None:
+        # wandb_logger.experiment.finish()
 
 
 @hydra.main(config_path=str(PROJECT_ROOT / "conf"), config_name="default")
