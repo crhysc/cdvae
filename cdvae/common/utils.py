@@ -85,13 +85,19 @@ def log_hyperparameters(
     trainer.logger.log_hyperparams = lambda params: None
 
 
-# Load environment variables
+# Load environment variables but do NOT override already-set env vars
+def load_envs(env_file: Optional[str] = None) -> None:
+    dotenv.load_dotenv(dotenv_path=env_file, override=False)
+
 load_envs()
 
-# Set the cwd to the project root
-PROJECT_ROOT: Path = Path(get_env("PROJECT_ROOT"))
-assert (
-    PROJECT_ROOT.exists()
-), "You must configure the PROJECT_ROOT environment variable in a .env file!"
+# Prefer env, else fall back to the cdvae project root (…/models/cdvae)
+_DEFAULT_ROOT = Path(__file__).resolve().parents[2]
+PROJECT_ROOT: Path = Path(os.getenv("PROJECT_ROOT", str(_DEFAULT_ROOT)))
 
-os.chdir(PROJECT_ROOT)
+# If the chosen root has no conf, fall back to default
+if not (PROJECT_ROOT / "conf").exists():
+    PROJECT_ROOT = _DEFAULT_ROOT
+
+# Do not chdir; let Hydra manage working directories
+# os.chdir(PROJECT_ROOT)
